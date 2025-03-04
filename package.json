@@ -1,0 +1,85 @@
+{
+  "name": "yivcolor",
+  "displayName": "YivColor",
+  "description": "Display color previews in any file type",
+  "version": "1.1.0",
+  "publisher": "Yivani",
+  "author": {
+    "name": "Yivani"
+  },
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YivColor/YivColor"
+  },
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Other",
+    "Visualization"
+  ],
+  "keywords": [
+    "color",
+    "preview",
+    "highlight",
+    "decorator"
+  ],
+  "icon": "images/icon.png",
+  "galleryBanner": {
+    "color": "#C80000",
+    "theme": "dark"
+  },
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "YivColor",
+      "properties": {
+        "yivcolor.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable YivColor"
+        },
+        "yivcolor.supportedFileTypes": {
+          "type": "array",
+          "default": [
+            "py",
+            "java",
+            "c",
+            "cpp",
+            "h",
+            "go",
+            "rs",
+            "php",
+            "sh",
+            "yaml",
+            "yml",
+            "xml",
+            "sql",
+            "toml"
+          ],
+          "description": "List of file extensions to enable color decorations (without the dot, e.g. 'py' for Python files)"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "echo Preparing for packaging",
+    "lint": "eslint . --fix || true",
+    "test": "node ./test/runTest.js",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.60.0",
+    "@types/glob": "^7.1.3",
+    "@types/node": "^14.14.37",
+    "eslint": "^7.23.0",
+    "glob": "^7.1.6",
+    "vscode-test": "^1.5.2",
+    "vsce": "^2.15.0"
+  }
+}
