@@ -27,8 +27,8 @@
   ],
   "icon": "images/icon.png",
   "galleryBanner": {
-    "color": "#C80000",
-    "theme": "dark"
+    "color": "#f0f0f0",
+    "theme": "light"
   },
   "activationEvents": [
     "onStartupFinished"
