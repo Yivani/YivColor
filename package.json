@@ -2,7 +2,7 @@
   "name": "yivcolor",
   "displayName": "YivColor",
   "description": "Display color previews in any file type",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "publisher": "Yivani",
   "author": {
     "name": "Yivani"
@@ -35,6 +35,12 @@
   ],
   "main": "./extension.js",
   "contributes": {
+    "commands": [
+      {
+        "command": "yivcolor.refreshSettings",
+        "title": "YivColor: Refresh Settings"
+      }
+    ],
     "configuration": {
       "title": "YivColor",
       "properties": {

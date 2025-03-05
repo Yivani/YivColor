@@ -8,16 +8,26 @@ const COLOR_REGEX = {
 };
 
 const colorDecorations = new Map();
+let supportedFileTypes = [];
+
+function loadSupportedFileTypes() {
+  const config = vscode.workspace.getConfiguration("yivcolor");
+  supportedFileTypes = config.get("supportedFileTypes") || [];
+  console.log(
+    `YivColor: Loaded ${supportedFileTypes.length} supported file types`
+  );
+}
 
 function isFileTypeSupported(fileName) {
   if (!fileName) return false;
 
-  const config = vscode.workspace.getConfiguration("yivcolor");
-  const supportedFileTypes = config.get("supportedFileTypes") || [];
+  const fileExt = fileName.split(".").pop().toLowerCase().trim();
 
-  const fileExt = fileName.split(".").pop().toLowerCase();
+  if (!fileExt || fileExt === fileName) return false;
 
-  return supportedFileTypes.includes(fileExt);
+  return supportedFileTypes.some(
+    (supportedType) => supportedType.toLowerCase().trim() === fileExt
+  );
 }
 
 function parseColorForTooltip(colorStr) {
@@ -124,6 +134,8 @@ function clearDecorations(editor) {
 function activate(context) {
   console.log("YivColor is now active");
 
+  loadSupportedFileTypes();
+
   vscode.window.onDidChangeActiveTextEditor(
     (editor) => {
       if (editor) {
@@ -148,19 +160,37 @@ function activate(context) {
   vscode.workspace.onDidChangeConfiguration(
     (event) => {
       if (event.affectsConfiguration("yivcolor")) {
-        const editor = vscode.window.activeTextEditor;
-        if (editor) {
+        loadSupportedFileTypes();
+
+        vscode.window.visibleTextEditors.forEach((editor) => {
           updateDecorations(editor);
-        }
+        });
+
+        console.log("YivColor: Configuration updated");
       }
     },
     null,
     context.subscriptions
   );
 
-  if (vscode.window.activeTextEditor) {
-    updateDecorations(vscode.window.activeTextEditor);
-  }
+  const refreshCommand = vscode.commands.registerCommand(
+    "yivcolor.refreshSettings",
+    () => {
+      loadSupportedFileTypes();
+      vscode.window.visibleTextEditors.forEach((editor) => {
+        updateDecorations(editor);
+      });
+      vscode.window.showInformationMessage(
+        `YivColor: Refreshed settings. Supporting ${supportedFileTypes.length} file types.`
+      );
+    }
+  );
+
+  context.subscriptions.push(refreshCommand);
+
+  vscode.window.visibleTextEditors.forEach((editor) => {
+    updateDecorations(editor);
+  });
 }
 
 function deactivate() {

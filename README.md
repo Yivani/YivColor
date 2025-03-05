@@ -48,6 +48,20 @@ This extension contributes the following settings:
 2. Search for "YivColor"
 3. Edit the "Yivcolor: Supported File Types" setting
 4. Add your desired file extensions (without the dot)
+5. If changes don't apply immediately, run the "YivColor: Refresh Settings" command from the Command Palette (F1)
+
+## Commands
+
+- `YivColor: Refresh Settings` - Manually reload supported file types from settings
+
+## Recent Changes
+
+### Version 1.1.0
+
+- Added "Refresh Settings" command for better handling of configuration changes
+- Improved file type detection with better error handling
+- Enhanced settings update mechanism to apply changes immediately
+- Fixed issues with adding new file types through settings
 
 ## In Progress
 
