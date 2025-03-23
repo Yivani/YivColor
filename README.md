@@ -5,7 +5,7 @@ A Visual Studio Code extension that displays color previews in any file type.
 ## Features
 
 - Display color previews for hex colors, rgb, rgba, and hsl formats
-- Works in specific file types
+- Works in specific file types and unsaved files
 - Automatically updates as you type
 
 ## Usage
@@ -56,12 +56,9 @@ This extension contributes the following settings:
 
 ## Recent Changes
 
-### Version 1.1.0
-
-- Added "Refresh Settings" command for better handling of configuration changes
-- Improved file type detection with better error handling
-- Enhanced settings update mechanism to apply changes immediately
-- Fixed issues with adding new file types through settings
+### Version 1.2.0
+- Added support for unsaved/untitled files
+- Colors now display even before saving the file
 
 ## In Progress
 

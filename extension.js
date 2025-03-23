@@ -19,11 +19,28 @@ function loadSupportedFileTypes() {
 }
 
 function isFileTypeSupported(fileName) {
-  if (!fileName) return false;
+  // Better handling for untitled/unsaved files
+  if (!fileName) {
+    console.log("YivColor: No filename detected, likely an untitled file");
+    return true;
+  }
+
+  // Check for untitled files in various formats
+  if (fileName.startsWith("Untitled:") ||
+      fileName.startsWith("untitled:") ||
+      fileName.includes("Untitled-") ||
+      fileName === "Untitled" ||
+      !fileName.includes(".")) {
+    console.log(`YivColor: Detected untitled file: ${fileName}`);
+    return true;
+  }
 
   const fileExt = fileName.split(".").pop().toLowerCase().trim();
 
-  if (!fileExt || fileExt === fileName) return false;
+  if (!fileExt || fileExt === fileName) {
+    console.log(`YivColor: Could not determine file extension for: ${fileName}`);
+    return false;
+  }
 
   return supportedFileTypes.some(
     (supportedType) => supportedType.toLowerCase().trim() === fileExt
@@ -65,8 +82,14 @@ function updateDecorations(editor) {
     return;
   }
 
+  // Add logging for debugging untitled files
   const fileName = editor.document.fileName;
-  if (!isFileTypeSupported(fileName)) {
+  const isUntitled = editor.document.isUntitled;
+
+  console.log(`YivColor: Processing file ${fileName}, isUntitled: ${isUntitled}`);
+
+  // Use both checks for untitled files
+  if (!isFileTypeSupported(fileName) && !isUntitled) {
     clearDecorations(editor);
     return;
   }
