@@ -171,8 +171,8 @@ To use this command:
 
 ## Planned Features
 
-1. Clickable color previews (Currently not avaiable on VS Code)
-2. Color picker integration (Currently not avaiable on VS Code)
+1. Clickable color previews (Currently not available on VS Code)
+2. Color picker integration (Currently not available on VS Code)
 3. Custom color formats support
 
 ## License
