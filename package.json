@@ -2,7 +2,7 @@
   "name": "yivcolor",
   "displayName": "YivColor",
   "description": "Display color previews in any file type",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "publisher": "Yivani",
   "author": {
     "name": "Yivani"
@@ -47,10 +47,57 @@
         "yivcolor.enable": {
           "type": "boolean",
           "default": true,
-          "description": "Enable/disable YivColor"
+          "description": "Enable/disable YivColor color previews",
+          "markdownDescription": "Enable or disable color previews globally for all supported file types",
+          "order": 1
+        },
+        "yivcolor.appearance.previewSize": {
+          "type": "number",
+          "default": 14,
+          "minimum": 8,
+          "maximum": 32,
+          "description": "Size of the color preview square in pixels",
+          "markdownDescription": "Size of the color preview square in pixels (range: 8-32)",
+          "order": 2
+        },
+        "yivcolor.appearance.previewBorder": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show border around color previews",
+          "markdownDescription": "Show a thin border around color previews to make them visible on matching backgrounds",
+          "order": 3
+        },
+        "yivcolor.appearance.previewPosition": {
+          "type": "string",
+          "enum": ["before", "after"],
+          "enumDescriptions": [
+            "Show color preview before the color code",
+            "Show color preview after the color code"
+          ],
+          "default": "before",
+          "description": "Position of the color preview relative to the color code",
+          "order": 4
+        },
+        "yivcolor.colorFormats": {
+          "type": "array",
+          "default": ["HEX", "RGB", "RGBA", "HSL", "HSV", "HSB", "CMYK", "LAB", "LCH", "YUV", "YCBCR"],
+          "items": {
+            "type": "string",
+            "enum": ["HEX", "RGB", "RGBA", "HSL", "HSV", "HSB", "CMYK", "LAB", "LCH", "YUV", "YCBCR"]
+          },
+          "uniqueItems": true,
+          "description": "Color formats to detect and display previews for",
+          "markdownDescription": "**Color formats** to detect and display previews for:\n- HEX: `#FFFFFF`\n- RGB: `rgb(255, 255, 255)`\n- RGBA: `rgba(255, 255, 255, 0.5)`\n- HSL: `hsl(360, 100%, 100%)`\n- HSV/HSB: Color models based on hue, saturation, and value/brightness\n- CMYK: `cmyk(0%, 100%, 100%, 0%)`\n- LAB, LCH, YUV, YCBCR: Additional color spaces",
+          "order": 5
         },
         "yivcolor.supportedFileTypes": {
           "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9]+$",
+            "patternErrorMessage": "File extensions should not include a dot, e.g. 'py' instead of 'py'"
+          },
+          "uniqueItems": true,
           "default": [
             "py",
             "java",
@@ -65,9 +112,35 @@
             "yml",
             "xml",
             "sql",
-            "toml"
+            "toml",
+            "json",
+            "js",
+            "ts",
+            "md",
+            "txt",
+            "tex",
+            "ini",
+            "csv",
+            "tsv",
+            "log"
           ],
-          "description": "List of file extensions to enable color decorations (without the dot, e.g. 'py' for Python files)"
+          "description": "List of file extensions to enable color decorations",
+          "markdownDescription": "**File extensions** to enable color decorations\n\n- Enter extensions without the dot (e.g., `js` instead of `.js`)\n- One extension per line\n- After adding new extensions, run the `YivColor: Refresh Settings` command",
+          "order": 6
+        },
+        "yivcolor.experimental.enableUntitledFiles": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable color previews in untitled (unsaved) files",
+          "markdownDescription": "Enable color previews in untitled (unsaved) files. This feature is experimental and may not work perfectly.",
+          "order": 7
+        },
+        "yivcolor.experimental.enableLogging": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable logging for debugging",
+          "markdownDescription": "Enable console logging for debugging purposes. Only enable if you're experiencing issues.",
+          "order": 8
         }
       }
     }

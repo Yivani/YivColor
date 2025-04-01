@@ -5,40 +5,55 @@ const COLOR_REGEX = {
   RGB: /rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)/g,
   RGBA: /rgba\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(0?\.\d+|1|0)\s*\)/g,
   HSL: /hsl\(\s*(\d{1,3})\s*,\s*(\d{1,3})%\s*,\s*(\d{1,3})%\s*\)/g,
+  HSV: /hsv\(\s*(\d{1,3})\s*,\s*(\d{1,3})%\s*,\s*(\d{1,3})%\s*\)/g,
+  HSB: /hsb\(\s*(\d{1,3})\s*,\s*(\d{1,3})%\s*,\s*(\d{1,3})%\s*\)/g,
+  CMYK: /cmyk\(\s*(\d{1,3})%\s*,\s*(\d{1,3})%\s*,\s*(\d{1,3})%\s*,\s*(\d{1,3})%\s*\)/g,
+  LAB: /lab\(\s*(\d{1,3})%\s*,\s*(-?\d{1,3})\s*,\s*(-?\d{1,3})\s*\)/g,
+  LCH: /lch\(\s*(\d{1,3})%\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)/g,
+  YUV: /yuv\(\s*(\d{1,3})%\s*,\s*(-?\d{1,3})\s*,\s*(-?\d{1,3})\s*\)/g,
+  YCBCR: /ycbcr\(\s*(\d{1,3})\s*,\s*(-?\d{1,3})\s*,\s*(-?\d{1,3})\s*\)/g,
 };
 
 const colorDecorations = new Map();
 let supportedFileTypes = [];
+let enabledColorFormats = [];
+let config = {};
 
-function loadSupportedFileTypes() {
-  const config = vscode.workspace.getConfiguration("yivcolor");
+function loadConfig() {
+  config = vscode.workspace.getConfiguration("yivcolor");
   supportedFileTypes = config.get("supportedFileTypes") || [];
-  console.log(
-    `YivColor: Loaded ${supportedFileTypes.length} supported file types`
-  );
+
+  enabledColorFormats = config.get("colorFormats") || ["HEX", "RGB", "RGBA", "HSL"];
+
+  const isLoggingEnabled = config.get("experimental.enableLogging", false);
+  if (isLoggingEnabled) {
+    console.log(`YivColor: Loaded ${supportedFileTypes.length} supported file types`);
+    console.log("YivColor: Enabled color formats:", enabledColorFormats);
+  }
 }
 
 function isFileTypeSupported(fileName) {
-  // Better handling for untitled/unsaved files
+  const enableUntitled = config.get("experimental.enableUntitledFiles", true);
+  const isLoggingEnabled = config.get("experimental.enableLogging", false);
+
   if (!fileName) {
-    console.log("YivColor: No filename detected, likely an untitled file");
-    return true;
+    if (isLoggingEnabled) console.log("YivColor: No filename detected, likely an untitled file");
+    return enableUntitled;
   }
 
-  // Check for untitled files in various formats
   if (fileName.startsWith("Untitled:") ||
       fileName.startsWith("untitled:") ||
       fileName.includes("Untitled-") ||
       fileName === "Untitled" ||
       !fileName.includes(".")) {
-    console.log(`YivColor: Detected untitled file: ${fileName}`);
-    return true;
+    if (isLoggingEnabled) console.log(`YivColor: Detected untitled file: ${fileName}`);
+    return enableUntitled;
   }
 
   const fileExt = fileName.split(".").pop().toLowerCase().trim();
 
   if (!fileExt || fileExt === fileName) {
-    console.log(`YivColor: Could not determine file extension for: ${fileName}`);
+    if (isLoggingEnabled) console.log(`YivColor: Could not determine file extension for: ${fileName}`);
     return false;
   }
 
@@ -68,6 +83,18 @@ function parseColorForTooltip(colorStr) {
     tooltip += "\nFormat: RGB";
   } else if (colorStr.startsWith("hsl")) {
     tooltip += "\nFormat: HSL";
+  } else if (colorStr.startsWith("hsv") || colorStr.startsWith("hsb")) {
+    tooltip += `\nFormat: ${colorStr.substring(0, 3).toUpperCase()}`;
+  } else if (colorStr.startsWith("cmyk")) {
+    tooltip += "\nFormat: CMYK";
+  } else if (colorStr.startsWith("lab")) {
+    tooltip += "\nFormat: LAB";
+  } else if (colorStr.startsWith("lch")) {
+    tooltip += "\nFormat: LCH";
+  } else if (colorStr.startsWith("yuv")) {
+    tooltip += "\nFormat: YUV";
+  } else if (colorStr.startsWith("ycbcr")) {
+    tooltip += "\nFormat: YCbCr";
   }
 
   return tooltip;
@@ -76,19 +103,19 @@ function parseColorForTooltip(colorStr) {
 function updateDecorations(editor) {
   if (!editor) return;
 
-  const config = vscode.workspace.getConfiguration("yivcolor");
   if (!config.get("enable")) {
     clearDecorations(editor);
     return;
   }
 
-  // Add logging for debugging untitled files
+  const isLoggingEnabled = config.get("experimental.enableLogging", false);
   const fileName = editor.document.fileName;
   const isUntitled = editor.document.isUntitled;
 
-  console.log(`YivColor: Processing file ${fileName}, isUntitled: ${isUntitled}`);
+  if (isLoggingEnabled) {
+    console.log(`YivColor: Processing file ${fileName}, isUntitled: ${isUntitled}`);
+  }
 
-  // Use both checks for untitled files
   if (!isFileTypeSupported(fileName) && !isUntitled) {
     clearDecorations(editor);
     return;
@@ -98,6 +125,8 @@ function updateDecorations(editor) {
   const colorPositions = [];
 
   for (const [type, regex] of Object.entries(COLOR_REGEX)) {
+    if (!enabledColorFormats.includes(type)) continue;
+
     let match;
     regex.lastIndex = 0;
 
@@ -113,20 +142,30 @@ function updateDecorations(editor) {
     }
   }
 
+  const previewSize = config.get("appearance.previewSize", 14);
+  const previewBorder = config.get("appearance.previewBorder", true);
+  const previewPosition = config.get("appearance.previewPosition", "before");
+
   const decorations = colorPositions.map(({ range, color }) => {
+    const renderOptions = {};
+    const position = previewPosition === "before" ? "before" : "after";
+
+    renderOptions[position] = {
+      contentText: " ",
+      backgroundColor: color,
+      margin: "0 4px 0 0",
+      width: `${previewSize}px`,
+      height: `${previewSize}px`,
+      borderRadius: "3px",
+    };
+
+    if (previewBorder) {
+      renderOptions[position].border = "1px solid #88888844";
+    }
+
     return {
       range,
-      renderOptions: {
-        before: {
-          contentText: " ",
-          backgroundColor: color,
-          border: "1px solid #88888844",
-          margin: "0 5px 0 0",
-          width: "12px",
-          height: "12px",
-          borderRadius: "3px",
-        },
-      },
+      renderOptions,
       hoverMessage: new vscode.MarkdownString(parseColorForTooltip(color)),
     };
   });
@@ -157,7 +196,7 @@ function clearDecorations(editor) {
 function activate(context) {
   console.log("YivColor is now active");
 
-  loadSupportedFileTypes();
+  loadConfig();
 
   vscode.window.onDidChangeActiveTextEditor(
     (editor) => {
@@ -183,13 +222,15 @@ function activate(context) {
   vscode.workspace.onDidChangeConfiguration(
     (event) => {
       if (event.affectsConfiguration("yivcolor")) {
-        loadSupportedFileTypes();
+        loadConfig();
 
         vscode.window.visibleTextEditors.forEach((editor) => {
           updateDecorations(editor);
         });
 
-        console.log("YivColor: Configuration updated");
+        if (config.get("experimental.enableLogging", false)) {
+          console.log("YivColor: Configuration updated");
+        }
       }
     },
     null,
@@ -199,7 +240,7 @@ function activate(context) {
   const refreshCommand = vscode.commands.registerCommand(
     "yivcolor.refreshSettings",
     () => {
-      loadSupportedFileTypes();
+      loadConfig();
       vscode.window.visibleTextEditors.forEach((editor) => {
         updateDecorations(editor);
       });
