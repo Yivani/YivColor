@@ -197,10 +197,6 @@ To use these commands:
 
 1. Clickable color previews (Currently not available on VS Code)
 2. Color picker integration (Currently not available on VS Code)
-<<<<<<< HEAD
-=======
-3. Custom color formats support
->>>>>>> 8eede128749be6e6f5476bc8b0b8ff58f6a15233
 
 ## License
 
