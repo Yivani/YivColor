@@ -5,7 +5,7 @@
  * @copyright Copyright (c) 2023-2024 Yivani
  * @license GPL-3.0
  * @author Yivani
- * @version 1.4.0
+ * @version 1.5.0
  *
  * This extension displays color previews in Visual Studio Code for various color formats
  * including HEX, RGB, RGBA, HSL, HSV, HSB, CMYK, LAB, LCH, YUV and YCBCR.
@@ -1148,6 +1148,7 @@ function activate(context) {
     context.subscriptions
   );
 
+  // Register the refresh settings command
   const refreshCommand = vscode.commands.registerCommand(
     "yivcolor.refreshSettings",
     () => {
@@ -1163,23 +1164,50 @@ function activate(context) {
 
   context.subscriptions.push(refreshCommand);
 
+  // Register the optimize performance command
+  const optimizeCommand = vscode.commands.registerCommand(
+    "yivcolor.optimizePerformance",
+    () => {
+      // Clear any existing caches
+      colorDecorations.clear();
+
+      // Force garbage collection by nullifying large objects
+      COLOR_REGEX.lastIndex = 0;
+
+      // Refresh decorations with optimized settings
+      vscode.window.visibleTextEditors.forEach((editor) => {
+        updateDecorations(editor);
+      });
+
+      vscode.window.showInformationMessage("YivColor: Performance optimized");
+    }
+  );
+
+  context.subscriptions.push(optimizeCommand);
+
+  // Initialize color decorations for all visible editors
   vscode.window.visibleTextEditors.forEach((editor) => {
     updateDecorations(editor);
   });
 }
 
-// Extension deactivation - clean up resources
+/**
+ * Extension deactivation handler - performs cleanup when extension is deactivated
+ * Disposes all decorations, clears caches and releases UI resources
+ */
 function deactivate() {
+  // Clean up all color decorations
   colorDecorations.forEach((decoration) => {
     decoration.type.dispose();
   });
   colorDecorations.clear();
 
+  // Dispose status bar item
   if (statusBarItem) {
     statusBarItem.dispose();
   }
 
-  // No need to dispose statusViewProvider as it's handled by the extension context
+  // statusViewProvider is handled by the extension context
 }
 
 module.exports = {

@@ -169,7 +169,9 @@ YivColor adds a status bar indicator that shows whether the extension is active:
   "yivcolor.supportedFileTypes": [
     "py", "java", "js", "html", "css", "md"
   ],
-  "yivcolor.experimental.enableUntitledFiles": true
+  "yivcolor.experimental.enableUntitledFiles": true,
+  "yivcolor.performance.enableCaching": true,
+  "yivcolor.performance.throttleForLargeFiles": true
 }
 ```
 
@@ -177,12 +179,21 @@ YivColor adds a status bar indicator that shows whether the extension is active:
 
 - `YivColor: Refresh Settings` - Manually reload supported file types from settings. Use this after adding new file types to see immediate changes.
 - `YivColor: Toggle Extension` - Enable or disable the extension.
+- `YivColor: Optimize Performance` - Clean cache and optimize performance for color parsing.
 
 To use these commands:
 1. Press `Ctrl+Shift+P` (Windows/Linux) or `Cmd+Shift+P` (Mac) to open the Command Palette
 2. Type the command name and select it
 
 ## Recent Changes
+
+### Version 1.5.0
+- Added performance optimization features
+  - Color parsing cache to improve speed with repeated colors
+  - Smart throttling for large files
+  - Optimized regex patterns for better performance
+- Added new "Optimize Performance" command
+- Added performance configuration options
 
 ### Version 1.4.0
 - Enhanced Activity Bar integration with visual status indicator and quick settings
@@ -195,12 +206,16 @@ To use these commands:
 
 ## Planned Features
 
+### For Version 1.6.0
+- Color history
+  - Track recently detected colors in your workspace
+  - Allow quick reuse of colors from history
+  - Persistent color history between sessions
+
+### Future Releases
 1. Clickable color previews (Currently not available on VS Code)
 2. Color picker integration (Currently not available on VS Code)
-<<<<<<< HEAD
-=======
-3. Custom color formats support
->>>>>>> 8eede128749be6e6f5476bc8b0b8ff58f6a15233
+3. More intelligent color detection in comments and strings
 
 ## License
 

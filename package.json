@@ -2,7 +2,7 @@
   "name": "yivcolor",
   "displayName": "YivColor",
   "description": "Display color previews in any file type",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "publisher": "Yivani",
   "author": {
     "name": "Yivani"
@@ -61,6 +61,12 @@
       {
         "command": "yivcolor.toggleExtension",
         "title": "YivColor: Toggle Extension"
+      },
+      {
+        "command": "yivcolor.optimizePerformance",
+        "title": "YivColor: Optimize Performance",
+        "category": "YivColor",
+        "description": "Clean cache and optimize performance for color parsing"
       }
     ],
     "configuration": {
@@ -144,7 +150,8 @@
             "ini",
             "csv",
             "tsv",
-            "log"
+            "log",
+            "css"
           ],
           "description": "List of file extensions to enable color decorations",
           "markdownDescription": "**File extensions** to enable color decorations\n\n- Enter extensions without the dot (e.g., `js` instead of `.js`)\n- One extension per line\n- After adding new extensions, run the `YivColor: Refresh Settings` command",
@@ -163,6 +170,66 @@
           "description": "Enable logging for debugging",
           "markdownDescription": "Enable console logging for debugging purposes. Only enable if you're experiencing issues.",
           "order": 8
+        },
+        "yivcolor.experimental.ignoreInvalidColors": {
+          "type": "boolean",
+          "default": true,
+          "description": "Gracefully handle invalid color formats",
+          "markdownDescription": "When enabled, invalid color formats will be ignored instead of causing errors or showing incorrect previews.",
+          "order": 9
+        },
+        "yivcolor.experimental.errorReporting": {
+          "type": "string",
+          "enum": ["none", "console", "notification", "status"],
+          "enumDescriptions": [
+            "Do not report errors",
+            "Report errors to the developer console only",
+            "Show error notifications to the user",
+            "Show errors in the status bar"
+          ],
+          "default": "console",
+          "description": "How to report errors when they occur",
+          "markdownDescription": "Controls how errors are reported:\n- **none**: Errors are silently ignored\n- **console**: Errors are logged to the developer console\n- **notification**: User is notified of errors via notifications\n- **status**: Errors are shown in the status bar",
+          "order": 10
+        },
+        "yivcolor.performance.enableCaching": {
+          "type": "boolean",
+          "default": true,
+          "description": "Cache parsed colors to improve performance",
+          "markdownDescription": "When enabled, colors will be cached after parsing to improve performance in files with many repeated colors.",
+          "order": 11
+        },
+        "yivcolor.performance.throttleForLargeFiles": {
+          "type": "boolean",
+          "default": true,
+          "description": "Throttle color preview updates for large files",
+          "markdownDescription": "When enabled, color previews will be throttled for large files to prevent performance issues.",
+          "order": 12
+        },
+        "yivcolor.performance.largeFileThreshold": {
+          "type": "number",
+          "default": 100000,
+          "minimum": 10000,
+          "maximum": 1000000,
+          "description": "Size threshold (in characters) for large file throttling",
+          "markdownDescription": "Files with more characters than this threshold will use throttled color preview updates.",
+          "order": 13
+        },
+        "yivcolor.performance.throttleDelay": {
+          "type": "number",
+          "default": 300,
+          "minimum": 100,
+          "maximum": 2000,
+          "description": "Delay in milliseconds for throttled updates",
+          "markdownDescription": "The delay in milliseconds between throttled color preview updates.",
+          "order": 14
+        },
+        "yivcolor.performance.optimizedRegex": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use optimized regex patterns for better performance",
+          "markdownDescription": "When enabled, more efficient regex patterns will be used for color matching, which may improve performance.",
+          "order": 15
         }
       }
     }
