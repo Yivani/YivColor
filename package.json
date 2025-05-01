@@ -97,7 +97,10 @@
         },
         "yivcolor.appearance.previewPosition": {
           "type": "string",
-          "enum": ["before", "after"],
+          "enum": [
+            "before",
+            "after"
+          ],
           "enumDescriptions": [
             "Show color preview before the color code",
             "Show color preview after the color code"
@@ -108,10 +111,36 @@
         },
         "yivcolor.colorFormats": {
           "type": "array",
-          "default": ["HEX", "RGB", "RGBA", "HSL", "HSV", "HSB", "CMYK", "LAB", "LCH", "YUV", "YCBCR", "NAMED"],
+          "default": [
+            "HEX",
+            "RGB",
+            "RGBA",
+            "HSL",
+            "HSV",
+            "HSB",
+            "CMYK",
+            "LAB",
+            "LCH",
+            "YUV",
+            "YCBCR",
+            "NAMED"
+          ],
           "items": {
             "type": "string",
-            "enum": ["HEX", "RGB", "RGBA", "HSL", "HSV", "HSB", "CMYK", "LAB", "LCH", "YUV", "YCBCR", "NAMED"]
+            "enum": [
+              "HEX",
+              "RGB",
+              "RGBA",
+              "HSL",
+              "HSV",
+              "HSB",
+              "CMYK",
+              "LAB",
+              "LCH",
+              "YUV",
+              "YCBCR",
+              "NAMED"
+            ]
           },
           "uniqueItems": true,
           "description": "Color formats to detect and display previews for",
@@ -180,7 +209,12 @@
         },
         "yivcolor.experimental.errorReporting": {
           "type": "string",
-          "enum": ["none", "console", "notification", "status"],
+          "enum": [
+            "none",
+            "console",
+            "notification",
+            "status"
+          ],
           "enumDescriptions": [
             "Do not report errors",
             "Report errors to the developer console only",
@@ -242,12 +276,12 @@
     "publish": "vsce publish"
   },
   "devDependencies": {
-    "@types/vscode": "^1.60.0",
     "@types/glob": "^7.1.3",
     "@types/node": "^14.14.37",
+    "@types/vscode": "^1.60.0",
     "eslint": "^7.23.0",
     "glob": "^7.1.6",
-    "vscode-test": "^1.5.2",
-    "vsce": "^2.15.0"
+    "vsce": "^1.97.0",
+    "vscode-test": "^1.5.2"
   }
 }
