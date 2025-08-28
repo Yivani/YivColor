@@ -2,6 +2,24 @@
 
 All notable changes to the "YivColor" extension will be documented in this file.
 
+## [1.6.0] - 2025-08-28
+
+### Added
+- Workspace Color History: tracks recently detected colors across your workspace
+- Activity Bar "Color History" view with copy and clear actions
+- Command: "YivColor: Clear Color History"
+- Setting: `yivcolor.history.maxItems` to control history size
+
+### Performance
+- Single-pass combined regex for color detection
+- Debounced updates per document with version cache
+- Shared decoration type to reduce churn
+- Large-file handling with configurable thresholds and delays
+
+### Changed
+- Refactored color logic into modules under `src/color/` for maintainability
+- Internal cleanup and minor stability improvements
+
 ## [1.2.1] - 2023-11-27
 
 ### Added

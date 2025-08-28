@@ -2,7 +2,7 @@
   "name": "yivcolor",
   "displayName": "YivColor",
   "description": "Display color previews in any file type",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "publisher": "Yivani",
   "author": {
     "name": "Yivani"
@@ -49,7 +49,14 @@
         {
           "id": "yivcolor-status",
           "name": "YivColor Status",
-          "type": "webview"
+          "type": "webview",
+          "icon": "$(symbol-color)"
+        },
+        {
+          "id": "yivcolor-history",
+          "name": "Color History",
+          "type": "webview",
+          "icon": "$(history)"
         }
       ]
     },
@@ -67,6 +74,12 @@
         "title": "YivColor: Optimize Performance",
         "category": "YivColor",
         "description": "Clean cache and optimize performance for color parsing"
+      },
+      {
+        "command": "yivcolor.clearColorHistory",
+        "title": "YivColor: Clear Color History",
+        "category": "YivColor",
+        "description": "Clears the stored color history for this workspace"
       }
     ],
     "configuration": {
@@ -264,6 +277,14 @@
           "description": "Use optimized regex patterns for better performance",
           "markdownDescription": "When enabled, more efficient regex patterns will be used for color matching, which may improve performance.",
           "order": 15
+        },
+        "yivcolor.history.maxItems": {
+          "type": "number",
+          "default": 100,
+          "minimum": 10,
+          "maximum": 500,
+          "description": "Maximum number of colors to keep in the workspace history",
+          "order": 20
         }
       }
     }

@@ -11,6 +11,7 @@ A Visual Studio Code extension that displays color previews in any file type.
 - ⚡ Automatically updates as you type
 - 🔧 Highly customizable appearance options
 - 📚 Support for numerous file types
+- 🗂️ Color history sidebar: see recently detected colors per workspace, copy with one click, and clear when needed
 
 ![YivColor in action](images/preview.png)
 
@@ -27,6 +28,7 @@ A Visual Studio Code extension that displays color previews in any file type.
 - 🌕 LCH: `lch(75%, 30, 270)`
 - 🌊 YUV: `yuv(50%, -30, 20)`
 - 🌈 YCbCr: `ycbcr(235, 128, 128)`
+- 🧱 Named CSS colors: `red`, `blue`, `coral`, etc.
 
 ### 📄 Supported File Types (by default):
 
@@ -118,6 +120,7 @@ Select which color formats to detect and display:
   - LCH: `lch(75%, 30, 270)`
   - YUV: `yuv(50%, -30, 20)`
   - YCBCR: `ycbcr(235, 128, 128)`
+  - NAMED: CSS color names like `red`, `blue`, `coral`
 
 #### File Types
 
@@ -137,6 +140,7 @@ YivColor adds a dedicated view in the Activity Bar that shows:
 - A visual status indicator
 - Quick settings controls
 - Access to the full settings panel
+- A "Color History" view listing recently detected colors with copy-on-click and a toolbar action to clear history
 
 ### Status Bar Integration
 
@@ -175,17 +179,33 @@ YivColor adds a status bar indicator that shows whether the extension is active:
 }
 ```
 
+### 🗂️ History Settings
+
+- **Maximum History Size**: Limit how many colors are stored in the workspace history
+  - Setting: `yivcolor.history.maxItems`
+  - Default: `100`
+
 ## Commands
 
 - `YivColor: Refresh Settings` - Manually reload supported file types from settings. Use this after adding new file types to see immediate changes.
 - `YivColor: Toggle Extension` - Enable or disable the extension.
 - `YivColor: Optimize Performance` - Clean cache and optimize performance for color parsing.
+- `YivColor: Clear Color History` - Clear the stored color history for this workspace.
 
 To use these commands:
 1. Press `Ctrl+Shift+P` (Windows/Linux) or `Cmd+Shift+P` (Mac) to open the Command Palette
 2. Type the command name and select it
 
 ## Recent Changes
+
+### Version 1.6.0
+- Added Color History
+  - Tracks recently detected colors across your workspace
+  - New Activity Bar "Color History" view with copy and clear actions
+  - New command: "YivColor: Clear Color History"
+  - New setting: `yivcolor.history.maxItems`
+- Additional performance and stability improvements
+- Internal refactor: modularized color logic under `src/color/`
 
 ### Version 1.5.0
 - Added performance optimization features
@@ -206,11 +226,11 @@ To use these commands:
 
 ## Planned Features
 
-### For Version 1.6.0
-- Color history
-  - Track recently detected colors in your workspace
-  - Allow quick reuse of colors from history
-  - Persistent color history between sessions
+### For Version 1.7.0
+- Pinned/favorite colors in the History view
+- Export/Import color history (JSON)
+- Incremental parsing: update only changed regions for even better performance on large files
+- Optional global history shared across workspaces
 
 ### Future Releases
 1. Clickable color previews (Currently not available on VS Code)

@@ -25,525 +25,13 @@
  */
 
 const vscode = require("vscode");
+const { ColorHistoryManager } = require("./src/history/color-history-manager");
+const { ColorHistoryViewProvider } = require("./src/history/color-history-view");
+const { CSS_COLORS } = require("./src/color/css-colors");
+const { COLOR_REGEX } = require("./src/color/color-regex");
+const { ColorUtils } = require("./src/color/color-parser");
 
-// Dictionary of CSS named colors - complete set of standard web colors
-const CSS_COLORS = {
-  aliceblue: "#f0f8ff",
-  antiquewhite: "#faebd7",
-  aqua: "#00ffff",
-  aquamarine: "#7fffd4",
-  azure: "#f0ffff",
-  beige: "#f5f5dc",
-  bisque: "#ffe4c4",
-  black: "#000000",
-  blanchedalmond: "#ffebcd",
-  blue: "#0000ff",
-  blueviolet: "#8a2be2",
-  brown: "#a52a2a",
-  burlywood: "#deb887",
-  cadetblue: "#5f9ea0",
-  chartreuse: "#7fff00",
-  chocolate: "#d2691e",
-  coral: "#ff7f50",
-  cornflowerblue: "#6495ed",
-  cornsilk: "#fff8dc",
-  crimson: "#dc143c",
-  cyan: "#00ffff",
-  darkblue: "#00008b",
-  darkcyan: "#008b8b",
-  darkgoldenrod: "#b8860b",
-  darkgray: "#a9a9a9",
-  darkgreen: "#006400",
-  darkgrey: "#a9a9a9",
-  darkkhaki: "#bdb76b",
-  darkmagenta: "#8b008b",
-  darkolivegreen: "#556b2f",
-  darkorange: "#ff8c00",
-  darkorchid: "#9932cc",
-  darkred: "#8b0000",
-  darksalmon: "#e9967a",
-  darkseagreen: "#8fbc8f",
-  darkslateblue: "#483d8b",
-  darkslategray: "#2f4f4f",
-  darkslategrey: "#2f4f4f",
-  darkturquoise: "#00ced1",
-  darkviolet: "#9400d3",
-  deeppink: "#ff1493",
-  deepskyblue: "#00bfff",
-  dimgray: "#696969",
-  dimgrey: "#696969",
-  dodgerblue: "#1e90ff",
-  firebrick: "#b22222",
-  floralwhite: "#fffaf0",
-  forestgreen: "#228b22",
-  fuchsia: "#ff00ff",
-  gainsboro: "#dcdcdc",
-  ghostwhite: "#f8f8ff",
-  gold: "#ffd700",
-  goldenrod: "#daa520",
-  gray: "#808080",
-  green: "#008000",
-  greenyellow: "#adff2f",
-  grey: "#808080",
-  honeydew: "#f0fff0",
-  hotpink: "#ff69b4",
-  indianred: "#cd5c5c",
-  indigo: "#4b0082",
-  ivory: "#fffff0",
-  khaki: "#f0e68c",
-  lavender: "#e6e6fa",
-  lavenderblush: "#fff0f5",
-  lawngreen: "#7cfc00",
-  lemonchiffon: "#fffacd",
-  lightblue: "#add8e6",
-  lightcoral: "#f08080",
-  lightcyan: "#e0ffff",
-  lightgoldenrodyellow: "#fafad2",
-  lightgray: "#d3d3d3",
-  lightgreen: "#90ee90",
-  lightgrey: "#d3d3d3",
-  lightpink: "#ffb6c1",
-  lightsalmon: "#ffa07a",
-  lightseagreen: "#20b2aa",
-  lightskyblue: "#87cefa",
-  lightslategray: "#778899",
-  lightslategrey: "#778899",
-  lightsteelblue: "#b0c4de",
-  lightyellow: "#ffffe0",
-  lime: "#00ff00",
-  limegreen: "#32cd32",
-  linen: "#faf0e6",
-  magenta: "#ff00ff",
-  maroon: "#800000",
-  mediumaquamarine: "#66cdaa",
-  mediumblue: "#0000cd",
-  mediumorchid: "#ba55d3",
-  mediumpurple: "#9370db",
-  mediumseagreen: "#3cb371",
-  mediumslateblue: "#7b68ee",
-  mediumspringgreen: "#00fa9a",
-  mediumturquoise: "#48d1cc",
-  mediumvioletred: "#c71585",
-  midnightblue: "#191970",
-  mintcream: "#f5fffa",
-  mistyrose: "#ffe4e1",
-  moccasin: "#ffe4b5",
-  navajowhite: "#ffdead",
-  navy: "#000080",
-  oldlace: "#fdf5e6",
-  olive: "#808000",
-  olivedrab: "#6b8e23",
-  orange: "#ffa500",
-  orangered: "#ff4500",
-  orchid: "#da70d6",
-  palegoldenrod: "#eee8aa",
-  palegreen: "#98fb98",
-  paleturquoise: "#afeeee",
-  palevioletred: "#db7093",
-  papayawhip: "#ffefd5",
-  peachpuff: "#ffdab9",
-  peru: "#cd853f",
-  pink: "#ffc0cb",
-  plum: "#dda0dd",
-  powderblue: "#b0e0e6",
-  purple: "#800080",
-  rebeccapurple: "#663399",
-  red: "#ff0000",
-  rosybrown: "#bc8f8f",
-  royalblue: "#4169e1",
-  saddlebrown: "#8b4513",
-  salmon: "#fa8072",
-  sandybrown: "#f4a460",
-  seagreen: "#2e8b57",
-  seashell: "#fff5ee",
-  sienna: "#a0522d",
-  silver: "#c0c0c0",
-  skyblue: "#87ceeb",
-  slateblue: "#6a5acd",
-  slategray: "#708090",
-  slategrey: "#708090",
-  snow: "#fffafa",
-  springgreen: "#00ff7f",
-  steelblue: "#4682b4",
-  tan: "#d2b48c",
-  teal: "#008080",
-  thistle: "#d8bfd8",
-  tomato: "#ff6347",
-  turquoise: "#40e0d0",
-  violet: "#ee82ee",
-  wheat: "#f5deb3",
-  white: "#ffffff",
-  whitesmoke: "#f5f5f5",
-  yellow: "#ffff00",
-  yellowgreen: "#9acd32"
-};
-
-// Build a regex pattern to match all CSS color names with word boundaries
-const colorNames = Object.keys(CSS_COLORS);
-const colorNamesPattern = `\\b(${colorNames.join("|")})\\b`;
-
-// Regular expressions for matching different color formats in code
-const COLOR_REGEX = {
-  HEX: /#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})\b/g,
-  RGB: /rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)/g,
-  RGBA: /rgba\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(0?\.\d+|1|0)\s*\)/g,
-  HSL: /hsl\(\s*(\d{1,3})\s*,\s*(\d{1,3})%\s*,\s*(\d{1,3})%\s*\)/g,
-  HSV: /hsv\(\s*(\d{1,3})\s*,\s*(\d{1,3})%\s*,\s*(\d{1,3})%\s*\)/g,
-  HSB: /hsb\(\s*(\d{1,3})\s*,\s*(\d{1,3})%\s*,\s*(\d{1,3})%\s*\)/g,
-  CMYK: /cmyk\(\s*(\d{1,3})%\s*,\s*(\d{1,3})%\s*,\s*(\d{1,3})%\s*,\s*(\d{1,3})%\s*\)/g,
-  LAB: /lab\(\s*(\d{1,3})%\s*,\s*(-?\d{1,3})\s*,\s*(-?\d{1,3})\s*\)/g,
-  LCH: /lch\(\s*(\d{1,3})%\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)/g,
-  YUV: /yuv\(\s*(\d{1,3})%\s*,\s*(-?\d{1,3})\s*,\s*(-?\d{1,3})\s*\)/g,
-  YCBCR: /ycbcr\(\s*(\d{1,3})\s*,\s*(-?\d{1,3})\s*,\s*(-?\d{1,3})\s*\)/g,
-  NAMED: new RegExp(colorNamesPattern, "gi") // Support for CSS named colors like 'red', 'blue', etc.
-};
-
-/*
- * My color conversion utilities - helps with converting between different
- * color formats and displaying them in tooltips
- */
-const ColorUtils = {
-  // Parse hex string to RGB components
-  hexToRgb(hex) {
-    hex = hex.replace('#', '');
-    if (hex.length === 3) {
-      hex = hex.split('').map(char => char + char).join('');
-    }
-
-    const r = parseInt(hex.substring(0, 2), 16);
-    const g = parseInt(hex.substring(2, 4), 16);
-    const b = parseInt(hex.substring(4, 6), 16);
-
-    return { r, g, b };
-  },
-
-  // RGB to hex string
-  rgbToHex(r, g, b) {
-    return '#' + [r, g, b].map(x => {
-      const hex = Math.max(0, Math.min(255, Math.round(x))).toString(16);
-      return hex.length === 1 ? '0' + hex : hex;
-    }).join('');
-  },
-
-  // RGB to HSL
-  rgbToHsl(r, g, b) {
-    r /= 255;
-    g /= 255;
-    b /= 255;
-
-    const max = Math.max(r, g, b);
-    const min = Math.min(r, g, b);
-    let h, s, l = (max + min) / 2;
-
-    if (max === min) {
-      h = s = 0; // achromatic
-    } else {
-      const d = max - min;
-      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-
-      switch (max) {
-        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-        case g: h = (b - r) / d + 2; break;
-        case b: h = (r - g) / d + 4; break;
-      }
-
-      h *= 60;
-    }
-
-    return {
-      h: Math.round(h),
-      s: Math.round(s * 100),
-      l: Math.round(l * 100)
-    };
-  },
-
-  // HSL to RGB
-  hslToRgb(h, s, l) {
-    s /= 100;
-    l /= 100;
-
-    const hue2rgb = (p, q, t) => {
-      if (t < 0) t += 1;
-      if (t > 1) t -= 1;
-      if (t < 1/6) return p + (q - p) * 6 * t;
-      if (t < 1/2) return q;
-      if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
-      return p;
-    };
-
-    if (s === 0) {
-      // achromatic
-      return { r: Math.round(l * 255), g: Math.round(l * 255), b: Math.round(l * 255) };
-    }
-
-    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-    const p = 2 * l - q;
-    h /= 360;
-
-    const r = Math.round(hue2rgb(p, q, h + 1/3) * 255);
-    const g = Math.round(hue2rgb(p, q, h) * 255);
-    const b = Math.round(hue2rgb(p, q, h - 1/3) * 255);
-
-    return { r, g, b };
-  },
-
-  // RGB to HSV
-  rgbToHsv(r, g, b) {
-    r /= 255;
-    g /= 255;
-    b /= 255;
-
-    const max = Math.max(r, g, b);
-    const min = Math.min(r, g, b);
-    let h, s, v = max;
-
-    const d = max - min;
-    s = max === 0 ? 0 : d / max;
-
-    if (max === min) {
-      h = 0; // achromatic
-    } else {
-      switch (max) {
-        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-        case g: h = (b - r) / d + 2; break;
-        case b: h = (r - g) / d + 4; break;
-      }
-      h *= 60;
-    }
-
-    return {
-      h: Math.round(h),
-      s: Math.round(s * 100),
-      v: Math.round(v * 100)
-    };
-  },
-
-  // HSV to RGB
-  hsvToRgb(h, s, v) {
-    s /= 100;
-    v /= 100;
-
-    const i = Math.floor(h / 60);
-    const f = h / 60 - i;
-    const p = v * (1 - s);
-    const q = v * (1 - s * f);
-    const t = v * (1 - s * (1 - f));
-
-    let r, g, b;
-
-    switch (i % 6) {
-      case 0: r = v, g = t, b = p; break;
-      case 1: r = q, g = v, b = p; break;
-      case 2: r = p, g = v, b = t; break;
-      case 3: r = p, g = q, b = v; break;
-      case 4: r = t, g = p, b = v; break;
-      case 5: r = v, g = p, b = q; break;
-    }
-
-    return {
-      r: Math.round(r * 255),
-      g: Math.round(g * 255),
-      b: Math.round(b * 255)
-    };
-  },
-
-  // RGB to CMYK
-  rgbToCmyk(r, g, b) {
-    r /= 255;
-    g /= 255;
-    b /= 255;
-
-    const k = 1 - Math.max(r, g, b);
-    if (k === 1) {
-      return { c: 0, m: 0, y: 0, k: 100 };
-    }
-
-    const c = (1 - r - k) / (1 - k);
-    const m = (1 - g - k) / (1 - k);
-    const y = (1 - b - k) / (1 - k);
-
-    return {
-      c: Math.round(c * 100),
-      m: Math.round(m * 100),
-      y: Math.round(y * 100),
-      k: Math.round(k * 100)
-    };
-  },
-
-  // CMYK to RGB
-  cmykToRgb(c, m, y, k) {
-    c /= 100;
-    m /= 100;
-    y /= 100;
-    k /= 100;
-
-    const r = Math.round(255 * (1 - c) * (1 - k));
-    const g = Math.round(255 * (1 - m) * (1 - k));
-    const b = Math.round(255 * (1 - y) * (1 - k));
-
-    return { r, g, b };
-  },
-
-  /*
-   * Master color parser that identifies color formats and provides conversions
-   * between different formats for consistent display and tooltips
-   */
-  parseColor(colorStr) {
-    // Check for named colors first (case insensitive)
-    const lowerColorStr = colorStr.toLowerCase();
-    if (CSS_COLORS[lowerColorStr]) {
-      const hexColor = CSS_COLORS[lowerColorStr];
-      const rgb = this.hexToRgb(hexColor);
-      return {
-        type: 'named',
-        name: colorStr,
-        hex: hexColor,
-        rgb,
-        hsl: this.rgbToHsl(rgb.r, rgb.g, rgb.b),
-        hsv: this.rgbToHsv(rgb.r, rgb.g, rgb.b),
-        cmyk: this.rgbToCmyk(rgb.r, rgb.g, rgb.b)
-      };
-    }
-
-    // HEX color: #RGB or #RRGGBB
-    if (colorStr.startsWith('#')) {
-      const rgb = this.hexToRgb(colorStr);
-      return {
-        type: 'hex',
-        hex: colorStr,
-        rgb,
-        hsl: this.rgbToHsl(rgb.r, rgb.g, rgb.b),
-        hsv: this.rgbToHsv(rgb.r, rgb.g, rgb.b),
-        cmyk: this.rgbToCmyk(rgb.r, rgb.g, rgb.b)
-      };
-    }
-
-    // RGB color: rgb(r, g, b)
-    if (colorStr.startsWith('rgb(')) {
-      const match = colorStr.match(/rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)/);
-      if (match) {
-        const r = parseInt(match[1], 10);
-        const g = parseInt(match[2], 10);
-        const b = parseInt(match[3], 10);
-
-        return {
-          type: 'rgb',
-          rgb: { r, g, b },
-          hex: this.rgbToHex(r, g, b),
-          hsl: this.rgbToHsl(r, g, b),
-          hsv: this.rgbToHsv(r, g, b),
-          cmyk: this.rgbToCmyk(r, g, b)
-        };
-      }
-    }
-
-    // RGBA color: rgba(r, g, b, a)
-    if (colorStr.startsWith('rgba(')) {
-      const match = colorStr.match(/rgba\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(0?\.\d+|1|0)\s*\)/);
-      if (match) {
-        const r = parseInt(match[1], 10);
-        const g = parseInt(match[2], 10);
-        const b = parseInt(match[3], 10);
-        const a = parseFloat(match[4]);
-
-        return {
-          type: 'rgba',
-          rgba: { r, g, b, a },
-          rgb: { r, g, b },
-          hex: this.rgbToHex(r, g, b),
-          hsl: this.rgbToHsl(r, g, b),
-          hsv: this.rgbToHsv(r, g, b),
-          cmyk: this.rgbToCmyk(r, g, b)
-        };
-      }
-    }
-
-    // HSL color: hsl(h, s%, l%)
-    if (colorStr.startsWith('hsl(')) {
-      const match = colorStr.match(/hsl\(\s*(\d{1,3})\s*,\s*(\d{1,3})%\s*,\s*(\d{1,3})%\s*\)/);
-      if (match) {
-        const h = parseInt(match[1], 10);
-        const s = parseInt(match[2], 10);
-        const l = parseInt(match[3], 10);
-        const rgb = this.hslToRgb(h, s, l);
-
-        return {
-          type: 'hsl',
-          hsl: { h, s, l },
-          rgb,
-          hex: this.rgbToHex(rgb.r, rgb.g, rgb.b),
-          hsv: this.rgbToHsv(rgb.r, rgb.g, rgb.b),
-          cmyk: this.rgbToCmyk(rgb.r, rgb.g, rgb.b)
-        };
-      }
-    }
-
-    // HSV color: hsv(h, s%, v%)
-    if (colorStr.startsWith('hsv(')) {
-      const match = colorStr.match(/hsv\(\s*(\d{1,3})\s*,\s*(\d{1,3})%\s*,\s*(\d{1,3})%\s*\)/);
-      if (match) {
-        const h = parseInt(match[1], 10);
-        const s = parseInt(match[2], 10);
-        const v = parseInt(match[3], 10);
-        const rgb = this.hsvToRgb(h, s, v);
-
-        return {
-          type: 'hsv',
-          hsv: { h, s, v },
-          rgb,
-          hex: this.rgbToHex(rgb.r, rgb.g, rgb.b),
-          hsl: this.rgbToHsl(rgb.r, rgb.g, rgb.b),
-          cmyk: this.rgbToCmyk(rgb.r, rgb.g, rgb.b)
-        };
-      }
-    }
-
-    // HSB color: hsb(h, s%, b%)
-    if (colorStr.startsWith('hsb(')) {
-      const match = colorStr.match(/hsb\(\s*(\d{1,3})\s*,\s*(\d{1,3})%\s*,\s*(\d{1,3})%\s*\)/);
-      if (match) {
-        // HSB is the same as HSV
-        const h = parseInt(match[1], 10);
-        const s = parseInt(match[2], 10);
-        const b = parseInt(match[3], 10);
-        const rgb = this.hsvToRgb(h, s, b);
-
-        return {
-          type: 'hsb',
-          hsb: { h, s, b },
-          rgb,
-          hex: this.rgbToHex(rgb.r, rgb.g, rgb.b),
-          hsl: this.rgbToHsl(rgb.r, rgb.g, rgb.b),
-          cmyk: this.rgbToCmyk(rgb.r, rgb.g, rgb.b)
-        };
-      }
-    }
-
-    // CMYK color: cmyk(c%, m%, y%, k%)
-    if (colorStr.startsWith('cmyk(')) {
-      const match = colorStr.match(/cmyk\(\s*(\d{1,3})%\s*,\s*(\d{1,3})%\s*,\s*(\d{1,3})%\s*,\s*(\d{1,3})%\s*\)/);
-      if (match) {
-        const c = parseInt(match[1], 10);
-        const m = parseInt(match[2], 10);
-        const y = parseInt(match[3], 10);
-        const k = parseInt(match[4], 10);
-        const rgb = this.cmykToRgb(c, m, y, k);
-
-        return {
-          type: 'cmyk',
-          cmyk: { c, m, y, k },
-          rgb,
-          hex: this.rgbToHex(rgb.r, rgb.g, rgb.b),
-          hsl: this.rgbToHsl(rgb.r, rgb.g, rgb.b),
-          hsv: this.rgbToHsv(rgb.r, rgb.g, rgb.b)
-        };
-      }
-    }
-
-    // If cannot parse the color, return null
-    return null;
-  }
-};
+// Externalized CSS_COLORS, COLOR_REGEX, and ColorUtils are imported above
 
 // Core data structures
 const colorDecorations = new Map();
@@ -552,6 +40,13 @@ let enabledColorFormats = [];
 let config = {};
 let statusBarItem;
 let statusViewProvider;
+let colorHistoryViewProvider;
+
+// Performance-related state
+let masterRegex = null; // Combined regex based on enabled formats
+let globalDecorationType = null; // Single reusable decoration type
+const updateTimers = new Map(); // uri -> timeout
+const docVersionCache = new Map(); // uri -> version last processed
 
 // Our Activity Bar view provider for visual status and settings
 class YivColorStatusViewProvider {
@@ -570,12 +65,12 @@ class YivColorStatusViewProvider {
     this.updateView();
 
     webviewView.webview.onDidReceiveMessage(message => {
-      if (message.command === 'toggle') {
+      if (message.command === "toggle") {
         toggleExtension();
-      } else if (message.command === 'openSettings') {
-        vscode.commands.executeCommand('workbench.action.openSettings', 'yivcolor');
-      } else if (message.command === 'updateSetting') {
-        vscode.workspace.getConfiguration('yivcolor').update(message.setting, message.value, true);
+      } else if (message.command === "openSettings") {
+        vscode.commands.executeCommand("workbench.action.openSettings", "yivcolor");
+      } else if (message.command === "updateSetting") {
+        vscode.workspace.getConfiguration("yivcolor").update(message.setting, message.value, true);
       }
     });
   }
@@ -593,21 +88,21 @@ class YivColorStatusViewProvider {
   }
 
   getHtmlContent(isEnabled, previewSize, previewBorder, previewPosition, enabledFormats) {
-    const statusColor = isEnabled ? '#57A64A' : '#808080'; // Green for on, gray for off
-    const statusText = isEnabled ? 'ON' : 'OFF';
-    const buttonClass = isEnabled ? 'active' : 'inactive';
+    const statusColor = isEnabled ? "#57A64A" : "#808080"; // Green for on, gray for off
+    const statusText = isEnabled ? "ON" : "OFF";
+    const buttonClass = isEnabled ? "active" : "inactive";
 
     // Create checkboxes for the most common color formats
     const commonFormats = ["HEX", "RGB", "RGBA", "HSL"];
     const formatCheckboxes = commonFormats.map(format => {
-      const checked = enabledFormats.includes(format) ? 'checked' : '';
+      const checked = enabledFormats.includes(format) ? "checked" : "";
       return `
         <div class="setting-item">
           <input type="checkbox" id="${format}" ${checked} onchange="updateColorFormat('${format}', this.checked)">
           <label for="${format}">${format}</label>
         </div>
       `;
-    }).join('');
+    }).join("");
 
     return `<!DOCTYPE html>
       <html lang="en">
@@ -724,11 +219,11 @@ class YivColorStatusViewProvider {
           <div class="status-circle ${buttonClass}">
             ${statusText}
           </div>
-          <div class="status-text">YivColor is ${isEnabled ? 'enabled' : 'disabled'}</div>
+          <div class="status-text">YivColor is ${isEnabled ? "enabled" : "disabled"}</div>
         </div>
 
         <button class="toggle-button" id="toggleBtn">
-          ${isEnabled ? 'Disable' : 'Enable'} YivColor
+          ${isEnabled ? "Disable" : "Enable"} YivColor
         </button>
 
         <div class="settings-section">
@@ -741,7 +236,7 @@ class YivColorStatusViewProvider {
           </div>
 
           <div class="setting-item">
-            <input type="checkbox" id="previewBorder" ${previewBorder ? 'checked' : ''}
+            <input type="checkbox" id="previewBorder" ${previewBorder ? "checked" : ""}
               onchange="updateSetting('appearance.previewBorder', this.checked)">
             <label for="previewBorder">Show Border</label>
           </div>
@@ -749,8 +244,8 @@ class YivColorStatusViewProvider {
           <div class="setting-item">
             <label for="previewPosition">Preview Position:</label>
             <select id="previewPosition" onchange="updateSetting('appearance.previewPosition', this.value)">
-              <option value="before" ${previewPosition === 'before' ? 'selected' : ''}>Before</option>
-              <option value="after" ${previewPosition === 'after' ? 'selected' : ''}>After</option>
+              <option value="before" ${previewPosition === "before" ? "selected" : ""}>Before</option>
+              <option value="after" ${previewPosition === "after" ? "selected" : ""}>After</option>
             </select>
           </div>
 
@@ -789,7 +284,7 @@ class YivColorStatusViewProvider {
           function updateColorFormat(format, isChecked) {
             // Get current enabled formats
             const enabledFormats = [
-              ${enabledFormats.map(f => `"${f}"`).join(', ')}
+              ${enabledFormats.map(f => `"${f}"`).join(", ")}
             ];
 
             if (isChecked && !enabledFormats.includes(format)) {
@@ -851,6 +346,35 @@ function loadConfig() {
   }
 
   updateStatusBar();
+
+  // Rebuild master regex when config changes
+  buildMasterRegex();
+  // Recreate decoration type if needed (size/border/position do not affect type)
+  if (!globalDecorationType) {
+    globalDecorationType = vscode.window.createTextEditorDecorationType({
+      isWholeLine: false,
+      rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed,
+    });
+  }
+}
+
+// Build a single combined regex to reduce multiple passes
+function buildMasterRegex() {
+  try {
+    const sources = [];
+    for (const [key, rx] of Object.entries(COLOR_REGEX)) {
+      if (key === "NAMED") continue; // add later to ensure case-insensitive names
+      if (!enabledColorFormats.includes(key)) continue;
+      sources.push(`(${rx.source})`);
+    }
+    // Always include named colors for convenience
+    sources.push(`(${COLOR_REGEX.NAMED.source})`);
+    masterRegex = new RegExp(sources.join("|"), "gi");
+  } catch (e) {
+    // Fallback to simple hex if something goes wrong
+    masterRegex = COLOR_REGEX.HEX;
+    masterRegex.lastIndex = 0;
+  }
 }
 
 // Determines if a given file type should have color highlighting
@@ -874,24 +398,24 @@ function isFileTypeSupported(fileName) {
   }
 
   // Extract filename from path and normalize it
-  const normalizedFileName = fileName.replace(/\\/g, '/').toLowerCase();
+  const normalizedFileName = fileName.replace(/\\/g, "/").toLowerCase();
 
   // First try to get extension from the last segment of the path
-  const pathSegments = normalizedFileName.split('/');
+  const pathSegments = normalizedFileName.split("/");
   const lastSegment = pathSegments[pathSegments.length - 1];
 
   // More robust file extension extraction
-  let fileExt = '';
-  if (lastSegment.includes('.')) {
-    fileExt = lastSegment.split('.').pop().toLowerCase().trim();
+  let fileExt = "";
+  if (lastSegment.includes(".")) {
+    fileExt = lastSegment.split(".").pop().toLowerCase().trim();
 
     // Handle some special file extensions with dots (like .d.ts)
-    if (lastSegment.endsWith('.d.ts')) {
-      fileExt = 'ts';
-    } else if (lastSegment.endsWith('.min.js')) {
-      fileExt = 'js';
-    } else if (lastSegment.endsWith('.spec.ts') || lastSegment.endsWith('.test.ts')) {
-      fileExt = 'ts';
+    if (lastSegment.endsWith(".d.ts")) {
+      fileExt = "ts";
+    } else if (lastSegment.endsWith(".min.js")) {
+      fileExt = "js";
+    } else if (lastSegment.endsWith(".spec.ts") || lastSegment.endsWith(".test.ts")) {
+      fileExt = "ts";
     }
   }
 
@@ -908,7 +432,7 @@ function isFileTypeSupported(fileName) {
   if (isLoggingEnabled) {
     console.log(`YivColor: File ${fileName} with extension "${fileExt}" is ${isSupported ? "supported" : "not supported"}`);
     if (!isSupported) {
-      console.log(`YivColor: Supported types: ${supportedFileTypes.join(', ')}`);
+      console.log(`YivColor: Supported types: ${supportedFileTypes.join(", ")}`);
     }
   }
 
@@ -924,32 +448,32 @@ function parseColorForTooltip(colorStr) {
 
   if (parsedColor) {
     // For named colors, show the corresponding hex value
-    if (parsedColor.type === 'named') {
+    if (parsedColor.type === "named") {
       tooltip += `\nHEX: ${parsedColor.hex}`;
     }
 
     // Add all appropriate conversions to the tooltip
-    if (parsedColor.hex && parsedColor.type !== 'hex' && parsedColor.type !== 'named') {
+    if (parsedColor.hex && parsedColor.type !== "hex" && parsedColor.type !== "named") {
       tooltip += `\nHEX: ${parsedColor.hex}`;
     }
 
-    if (parsedColor.rgb && parsedColor.type !== 'rgb' && parsedColor.type !== 'rgba') {
+    if (parsedColor.rgb && parsedColor.type !== "rgb" && parsedColor.type !== "rgba") {
       tooltip += `\nRGB: rgb(${parsedColor.rgb.r}, ${parsedColor.rgb.g}, ${parsedColor.rgb.b})`;
     }
 
-    if (parsedColor.rgba && parsedColor.type !== 'rgba') {
+    if (parsedColor.rgba && parsedColor.type !== "rgba") {
       tooltip += `\nRGBA: rgba(${parsedColor.rgba.r}, ${parsedColor.rgba.g}, ${parsedColor.rgba.b}, ${parsedColor.rgba.a})`;
     }
 
-    if (parsedColor.hsl && parsedColor.type !== 'hsl') {
+    if (parsedColor.hsl && parsedColor.type !== "hsl") {
       tooltip += `\nHSL: hsl(${parsedColor.hsl.h}, ${parsedColor.hsl.s}%, ${parsedColor.hsl.l}%)`;
     }
 
-    if (parsedColor.hsv && parsedColor.type !== 'hsv' && parsedColor.type !== 'hsb') {
+    if (parsedColor.hsv && parsedColor.type !== "hsv" && parsedColor.type !== "hsb") {
       tooltip += `\nHSV: hsv(${parsedColor.hsv.h}, ${parsedColor.hsv.s}%, ${parsedColor.hsv.v}%)`;
     }
 
-    if (parsedColor.cmyk && parsedColor.type !== 'cmyk') {
+    if (parsedColor.cmyk && parsedColor.type !== "cmyk") {
       tooltip += `\nCMYK: cmyk(${parsedColor.cmyk.c}%, ${parsedColor.cmyk.m}%, ${parsedColor.cmyk.y}%, ${parsedColor.cmyk.k}%)`;
     }
   } else {
@@ -1002,33 +526,40 @@ function updateDecorations(editor) {
     return;
   }
 
-  const text = editor.document.getText();
+  const doc = editor.document;
+  const textLength = doc.getText().length;
+
+  // Large file handling
+  const throttleLarge = config.get("performance.throttleForLargeFiles", true);
+  const largeThreshold = config.get("performance.largeFileThreshold", 100000);
+  let text;
+  if (throttleLarge && textLength > largeThreshold) {
+    // Scan only the first N characters to avoid heavy work
+    const range = new vscode.Range(doc.positionAt(0), doc.positionAt(largeThreshold));
+    text = doc.getText(range);
+    if (isLoggingEnabled) console.log(`YivColor: Large file detected (${textLength}). Scanning first ${largeThreshold} chars.`);
+  } else {
+    text = doc.getText();
+  }
   const colorPositions = [];
 
-  // Search for all color formats in the text
-  for (const [type, regex] of Object.entries(COLOR_REGEX)) {
-    if (!enabledColorFormats.includes(type) && type !== 'NAMED') continue; // Always check for named colors
+  // Use master regex for a single pass
+  if (!masterRegex) buildMasterRegex();
+  const rx = masterRegex;
+  rx.lastIndex = 0;
 
-    let match;
-    regex.lastIndex = 0;
-
-    while ((match = regex.exec(text)) !== null) {
-      const startPos = editor.document.positionAt(match.index);
-      const endPos = editor.document.positionAt(match.index + match[0].length);
-      const range = new vscode.Range(startPos, endPos);
-
-      // For named colors, get the actual hex value for decoration
-      let color = match[0];
-      if (type === 'NAMED') {
-        color = CSS_COLORS[match[0].toLowerCase()];
-      }
-
-      colorPositions.push({
-        range,
-        color: color,
-        originalText: match[0] // Store original text for tooltip
-      });
+  let m;
+  while ((m = rx.exec(text)) !== null) {
+    const startPos = editor.document.positionAt(m.index);
+    const endPos = editor.document.positionAt(m.index + m[0].length);
+    const range = new vscode.Range(startPos, endPos);
+    let color = m[0];
+    // If it's a named color word, convert to hex for background
+    const lower = color.toLowerCase();
+    if (CSS_COLORS[lower]) {
+      color = CSS_COLORS[lower];
     }
+    colorPositions.push({ range, color, originalText: m[0] });
   }
 
   // Apply visual decorations for each color found
@@ -1060,28 +591,48 @@ function updateDecorations(editor) {
     };
   });
 
-  const decorationType = vscode.window.createTextEditorDecorationType({
-    isWholeLine: false,
-    rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed,
-  });
+  if (!globalDecorationType) {
+    globalDecorationType = vscode.window.createTextEditorDecorationType({
+      isWholeLine: false,
+      rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed,
+    });
+  }
 
-  clearDecorations(editor);
-
-  editor.setDecorations(decorationType, decorations);
+  // Clear previous and set new decorations using a single global type
+  editor.setDecorations(globalDecorationType, decorations);
 
   colorDecorations.set(editor, {
-    type: decorationType,
+    type: globalDecorationType,
     items: colorPositions,
   });
+
+  // Update color history with unique hex values only
+  try {
+    const toHex = (c) => {
+      // normalize to hex when possible
+      if (!c) return undefined;
+      if (c.startsWith("#")) return c.toLowerCase();
+      // Try parse via ColorUtils for other formats (named, rgb, etc.)
+      const parsed = ColorUtils.parseColor(c);
+      return parsed && parsed.hex ? parsed.hex.toLowerCase() : undefined;
+    };
+    const unique = new Set(
+      colorPositions
+        .map(({ originalText, color }) => toHex(originalText || color))
+        .filter(Boolean)
+    );
+    ColorHistoryManager.addColors(unique);
+  } catch (e) {
+    // non-fatal
+  }
 }
 
 // Cleans up decorations from the editor
 function clearDecorations(editor) {
-  if (colorDecorations.has(editor)) {
-    const decoration = colorDecorations.get(editor);
-    decoration.type.dispose();
-    colorDecorations.delete(editor);
+  if (globalDecorationType) {
+    editor.setDecorations(globalDecorationType, []);
   }
+  colorDecorations.delete(editor);
 }
 
 // Extension activation point
@@ -1107,12 +658,27 @@ function activate(context) {
   const toggleCommand = vscode.commands.registerCommand("yivcolor.toggleExtension", toggleExtension);
   context.subscriptions.push(toggleCommand);
 
+  // Initialize Color History manager and view
+  ColorHistoryManager.initialize(context.workspaceState, vscode.workspace.getConfiguration("yivcolor"));
+  colorHistoryViewProvider = new ColorHistoryViewProvider(context.extensionUri);
+  context.subscriptions.push(
+    vscode.window.registerWebviewViewProvider("yivcolor-history", colorHistoryViewProvider)
+  );
+
+  // Command to clear history
+  context.subscriptions.push(
+    vscode.commands.registerCommand("yivcolor.clearColorHistory", () => {
+      ColorHistoryManager.clear();
+      vscode.window.showInformationMessage("YivColor: Color history cleared");
+    })
+  );
+
   loadConfig();
 
   vscode.window.onDidChangeActiveTextEditor(
     (editor) => {
       if (editor) {
-        updateDecorations(editor);
+  scheduleUpdate(editor);
       }
     },
     null,
@@ -1123,7 +689,7 @@ function activate(context) {
     (event) => {
       const editor = vscode.window.activeTextEditor;
       if (editor && event.document === editor.document) {
-        updateDecorations(editor);
+  scheduleUpdate(editor, event);
       }
     },
     null,
@@ -1136,7 +702,7 @@ function activate(context) {
         loadConfig();
 
         vscode.window.visibleTextEditors.forEach((editor) => {
-          updateDecorations(editor);
+          scheduleUpdate(editor);
         });
 
         if (config.get("experimental.enableLogging", false)) {
@@ -1154,7 +720,7 @@ function activate(context) {
     () => {
       loadConfig();
       vscode.window.visibleTextEditors.forEach((editor) => {
-        updateDecorations(editor);
+  scheduleUpdate(editor);
       });
       vscode.window.showInformationMessage(
         `YivColor: Refreshed settings. Supporting ${supportedFileTypes.length} file types.`
@@ -1176,7 +742,7 @@ function activate(context) {
 
       // Refresh decorations with optimized settings
       vscode.window.visibleTextEditors.forEach((editor) => {
-        updateDecorations(editor);
+  scheduleUpdate(editor);
       });
 
       vscode.window.showInformationMessage("YivColor: Performance optimized");
@@ -1187,8 +753,33 @@ function activate(context) {
 
   // Initialize color decorations for all visible editors
   vscode.window.visibleTextEditors.forEach((editor) => {
-    updateDecorations(editor);
+    scheduleUpdate(editor);
   });
+}
+
+// Debounced update per editor/document
+function scheduleUpdate(editor) {
+  if (!editor) return;
+  const uri = editor.document.uri.toString();
+  const delayBase = config.get("performance.throttleDelay", 300);
+  const throttleLarge = config.get("performance.throttleForLargeFiles", true);
+  const largeThreshold = config.get("performance.largeFileThreshold", 100000);
+  const textLen = editor.document.getText().length;
+  const delay = throttleLarge && textLen > largeThreshold ? Math.min(2000, delayBase * 2) : delayBase;
+
+  if (updateTimers.has(uri)) {
+    clearTimeout(updateTimers.get(uri));
+  }
+  const handle = setTimeout(() => {
+    // Skip if document version unchanged since last run
+    const ver = editor.document.version;
+    const cacheVer = docVersionCache.get(uri);
+    if (cacheVer === ver) return;
+    updateDecorations(editor);
+    docVersionCache.set(uri, ver);
+    updateTimers.delete(uri);
+  }, delay);
+  updateTimers.set(uri, handle);
 }
 
 /**
